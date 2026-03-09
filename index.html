@@ -482,7 +482,81 @@
     </div>
   </footer>
 
+  <!-- ======== RAG CHAT WIDGET ======== -->
+  <div id="chat-widget" class="chat-widget" aria-label="Chat with our AI concierge">
+    <!-- Toggle Button -->
+    <button id="chat-toggle" class="chat-toggle" aria-label="Open chat">
+      <span class="chat-toggle-icon" id="chat-toggle-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+          stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+        </svg>
+      </span>
+      <span class="chat-toggle-close" id="chat-toggle-close">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </span>
+      <span class="chat-toggle-pulse"></span>
+    </button>
+
+    <!-- Chat Panel -->
+    <div id="chat-panel" class="chat-panel">
+      <header class="chat-header">
+        <div class="chat-header-info">
+          <div class="chat-avatar">
+            <span>R</span>
+            <span class="chat-avatar-dot"></span>
+          </div>
+          <div>
+            <h4 class="chat-header-title">Rondeau <em>&amp;</em> Co.</h4>
+            <p class="chat-header-subtitle">AI Concierge &middot; Powered by RAG</p>
+          </div>
+        </div>
+        <button id="chat-close" class="chat-close-btn" aria-label="Close chat">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </header>
+
+      <div id="chat-messages" class="chat-messages">
+        <!-- Welcome message -->
+        <div class="chat-msg chat-msg-assistant">
+          <div class="chat-msg-bubble">
+            <p>Welcome to Rondeau &amp; Co. I'm your AI concierge, here to help with anything about our menu, wine list,
+              reservations, or private events. How may I assist you?</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Typing indicator -->
+      <div id="chat-typing" class="chat-typing" style="display:none">
+        <div class="chat-typing-dots">
+          <span></span><span></span><span></span>
+        </div>
+      </div>
+
+      <form id="chat-input-form" class="chat-input-bar" autocomplete="off">
+        <input type="text" id="chat-input" class="chat-input" placeholder="Ask about our menu, wine, events..."
+          aria-label="Type your message" required />
+        <button type="submit" id="chat-send-btn" class="chat-send-btn" aria-label="Send message">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <line x1="22" y1="2" x2="11" y2="13"></line>
+            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+          </svg>
+        </button>
+      </form>
+    </div>
+  </div>
+
   <script src="script.js"></script>
+  <script src="chat.js"></script>
 </body>
 
 </html>
