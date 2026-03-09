@@ -29,13 +29,9 @@ app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 # SECURITY: Restrict CORS to your frontend's actual URL
-ALLOWED_ORIGINS = [
-    "http://localhost:5500",  # VS Code Live Server
-    "http://127.0.0.1:5500",
-    "http://localhost:3000",  # Common React/Vite port
-    "http://localhost:8000",
-    # "https://your-production-domain.com",
-]
+# Loaded from .env (comma-separated list)
+env_origins = os.getenv("ALLOWED_ORIGINS", "http://localhost:5500")
+ALLOWED_ORIGINS = [origin.strip() for origin in env_origins.split(",")]
 
 app.add_middleware(
     CORSMiddleware,
