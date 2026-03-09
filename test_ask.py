@@ -9,8 +9,12 @@ import json
 URL = "http://127.0.0.1:8000/ask"
 
 def test_ask():
-    print("✨ Entering Interactive RAG Test Mode (Type 'exit' to stop) ✨")
+    print("✨ Entering Interactive RAG Test Mode (Stateful) ✨")
+    print("Type 'exit' to stop, 'clear' to reset memory.")
     print("-" * 50)
+    
+    # This is your "Client Side Session Storage"
+    history = []
     
     while True:
         question = input("\n🙋 ASK A QUESTION: ")
@@ -19,11 +23,22 @@ def test_ask():
             print("👋 Goodbye!")
             break
 
+        if question.lower() == "clear":
+            history = []
+            print("🧠 Memory cleared!")
+            continue
+
         if not question.strip():
             continue
 
         print("📡 Sending to backend...")
-        payload = {"question": question}
+        # Now we send the history list along with the question
+        payload = {
+            "question": question,
+            "history": history
+        }
+        
+        full_response = ""
         
         try:
             response = requests.post(URL, json=payload, stream=True)
@@ -44,9 +59,20 @@ def test_ask():
                                 print(f"📚 RESEARCHED: {sources}")
                                 print("🤖 RESPONSE: ", end="", flush=True)
                             elif data.get("type") == "token":
-                                print(data.get("token", ""), end="", flush=True)
+                                token = data.get("token", "")
+                                full_response += token
+                                print(token, end="", flush=True)
                         except:
                             continue
+            
+            # SAVE TO MEMORY: Append the exchange to history for the next turn
+            history.append({"role": "user", "content": question})
+            history.append({"role": "assistant", "content": full_response})
+            
+            # Keep history manageable (last 10 messages)
+            if len(history) > 10:
+                history = history[-10:]
+
             print("\n" + "." * 30)
 
         except requests.exceptions.ConnectionError:

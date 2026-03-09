@@ -14,6 +14,7 @@ from langchain_openai import ChatOpenAI
 from langchain_core.prompts import PromptTemplate
 import json
 import os
+from typing import List, Optional
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -39,12 +40,22 @@ Answer questions ONLY using the context provided below.
 - Keep answers concise, warm, and on-brand for a fine dining experience.
 - Never make up information that isn't in the context.
 
+Chat History:
+{chat_history}
+
 Context:
 {context}
 
 Question: {question}
 
 Answer:"""
+
+# This prompt turns "yes" into "The user wants to book Thursday at 9pm"
+CONDENSE_PROMPT = """Given the following chat history and a follow-up question, rephrase the follow-up question to be a standalone question.
+Chat History:
+{chat_history}
+Follow-up Question: {question}
+Standalone Question:"""
 
 MODEL = "meta-llama/llama-3.1-8b-instruct"  # Removed :free suffix to fix 404
 # ----------------------
@@ -70,13 +81,30 @@ prompt = PromptTemplate(
     template=SYSTEM_PROMPT,
 )
 
+class ChatMessage(BaseModel):
+    role: str  # "user" or "assistant"
+    content: str
+
 class Question(BaseModel):
     question: str
+    history: List[ChatMessage] = []
 
 @app.post("/ask")
 async def ask(body: Question):
-    # Step 1 — Retrieve relevant chunks from vector store
-    docs = retriever.invoke(body.question)
+    # Step 0 — Prepare Chat History string
+    history_str = "\n".join([f"{m.role}: {m.content}" for m in body.history])
+    
+    # Step 1 — Rewrite the question if history exists (Contextualization)
+    search_query = body.question
+    if body.history:
+        condense_input = CONDENSE_PROMPT.format(chat_history=history_str, question=body.question)
+        # We do a quick non-streaming call to rephrase the question
+        res = llm.invoke(condense_input)
+        search_query = res.content
+        print(f"DEBUG: Original: {body.question} -> Search Query: {search_query}")
+
+    # Step 2 — Retrieve relevant chunks based on updated query
+    docs = retriever.invoke(search_query)
 
     # Step 2 — Build context string from retrieved chunks
     context = "\n\n".join([doc.page_content for doc in docs])
@@ -86,8 +114,12 @@ async def ask(body: Question):
         doc.metadata.get("source", "unknown") for doc in docs
     ]))
 
-    # Step 4 — Format the full prompt
-    formatted_prompt = prompt.format(context=context, question=body.question)
+    # Step 5 — Format the full prompt with History + Context
+    formatted_prompt = prompt.format(
+        chat_history=history_str if history_str else "No previous conversation.",
+        context=context, 
+        question=body.question
+    )
 
     # Step 5 — Stream response back to frontend via SSE
     async def generate():
