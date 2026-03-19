@@ -8,6 +8,7 @@ python-dotenv==1.0.0
 slowapi==0.1.9
 langchain
 langchain-core
+langchain-huggingface
 langchain-community
 langchain-openai
 langchain-text-splitters

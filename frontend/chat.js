@@ -6,7 +6,7 @@
 document.addEventListener('DOMContentLoaded', () => {
 
     /** @type {string} Backend API base URL */
-    const API_BASE = 'http://127.0.0.1:8000';
+    const API_BASE = 'https://rondeauco.onrender.com';
 
     /** @type {HTMLElement} Main widget container */
     const widget = document.getElementById('chat-widget');
